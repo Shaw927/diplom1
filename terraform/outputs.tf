@@ -22,6 +22,14 @@ output "elasticsearch_private_ip" {
   value = yandex_compute_instance.elasticsearch.network_interface[0].ip_address
 }
 
+output "grafana_private_ip" {
+  value = yandex_compute_instance.grafana.network_interface[0].ip_address
+}
+
+output "kibana_private_ip" {
+  value = yandex_compute_instance.kibana.network_interface[0].ip_address
+}
+
 output "node_exporter_targets" {
   value = [
     for inst in yandex_compute_instance.web :
@@ -35,3 +43,5 @@ output "web_private_ips" {
     k => inst.network_interface[0].ip_address
   }
 }
+
+

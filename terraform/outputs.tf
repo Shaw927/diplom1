@@ -6,8 +6,8 @@ output "bastion_public_ip" {
   value = yandex_compute_instance.bastion.network_interface[0].nat_ip_address
 }
 
-output "prometheus_public_ip" {
-  value = yandex_compute_instance.prometheus.network_interface[0].nat_ip_address
+output "prometheus_ip" {
+  value = yandex_compute_instance.prometheus.network_interface[0].ip_address
 }
 
 output "grafana_public_ip" {

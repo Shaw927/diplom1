@@ -130,7 +130,7 @@ resource "yandex_compute_instance" "prometheus" {
 
   network_interface {
     subnet_id          = yandex_vpc_subnet.public["public-a"].id
-    nat                = true
+    nat                = false
     security_group_ids = [yandex_vpc_security_group.prometheus.id]
   }
 

@@ -1,7 +1,6 @@
-yandex_token = "тут id yandex OEM"
-cloud_id     = "тут id облака"
-folder_id    = "тут id папки"
-
+yandex_token = "тут токен yandex IAM" ### https://yandex.cloud/ru/docs/iam/concepts/
+cloud_id     = "тут id облака"   ### https://yandex.cloud/ru/docs/resource-manager/operations/cloud/get-id
+folder_id    = "тут id каталог"  ### https://yandex.cloud/ru/docs/resource-manager/operations/folder/get-id
 default_zone = "ru-central1-a" # зона доступности по дефолту которая будет ставится
 vpc_name     = "diplom-vpc" # название вм
 vm_count     = 2 # кол-во вм

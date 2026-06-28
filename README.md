@@ -50,9 +50,13 @@ terraform init
 terraform plan
 terraform apply
 ```
-cd ansible
-ansible-playbook playbooks/site.yml
+### 2. Ansible
 
+Тут достачно одного плейбука для запуска всех плейбуков в правильном порядке
+```bash
+cd ansible
+ansible-playbook playbooks/deploy-all.yml
+```
 
 ## Доступ к интерфейсам
 ```bash

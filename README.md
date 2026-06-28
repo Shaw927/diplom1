@@ -37,6 +37,12 @@
 - Grafana  → доступна только через bastion :3000
 - Kibana   → доступна только через bastion :5601
 
+## Требования
+-	Terraform >= 1.5
+-	Ansible >= 2.14
+-	Yandex Cloud CLI ( yc ) настроен и авторизован
+-	SSH-ключ в яндексе настроен
+
 ## Быстрый старт
 
 ### 1. Terraform
@@ -61,25 +67,10 @@ cd ansible
 ansible-playbook playbooks/deploy-all.yml
 ```
 
-## Доступ к интерфейсам
-```bash
-# Grafana
-ssh -L 3000:<grafana_private_ip>:3000 ubuntu@<bastion_public_ip>
-# → http://localhost:3000
+## Доступ к веб интерфейсу
 
-# Kibana
-ssh -L 5601:<kibana_private_ip>:5601 ubuntu@<bastion_public_ip>
-# → http://localhost:5601
-
-# Prometheus
-ssh -L 9090:<prometheus_private_ip>:9090 ubuntu@<bastion_public_ip>
-# → http://localhost:9090
-```
-ip можено посмотреть в вебке или по команде:
+ip можно посмотреть в вебке яндекс клауда или по команде:
 terraform output
+там переходим по публичному ip на нужный порт, например для графаны 3000 для кибаны 5601
+для прометеуса 9090, но этот порт открыт только для графаны
 
-## Требования
--	Terraform >= 1.5
--	Ansible >= 2.14
--	Yandex Cloud CLI ( yc ) настроен и авторизован
--	SSH-ключ в яндексе настроен

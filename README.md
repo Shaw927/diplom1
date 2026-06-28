@@ -28,14 +28,14 @@
 
 ### Security Groups
 
-Интернет → Ip bastion :22
-Bastion  → Web :22, Prometheus :22, Grafana :22, Kibana :22, Elasticsearch :22
-ALB      → Web :80
-Prometheus → Web :9100, :4040 (метрики)
-Web      → Elasticsearch :9200 (Filebeat)
-Kibana   → Elasticsearch :9200
-Grafana  → доступна только через bastion :3000
-Kibana   → доступна только через bastion :5601
+- Интернет → Ip bastion :22
+- Bastion  → Web :22, Prometheus :22, Grafana :22, Kibana :22, Elasticsearch :22
+- ALB      → Web :80
+- Prometheus → Web :9100, :4040 (метрики)
+- Web      → Elasticsearch :9200 (Filebeat)
+- Kibana   → Elasticsearch :9200
+- Grafana  → доступна только через bastion :3000
+- Kibana   → доступна только через bastion :5601
 
 ## Быстрый старт
 

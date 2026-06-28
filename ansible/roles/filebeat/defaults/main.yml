@@ -1,0 +1,10 @@
+filebeat_version: "8.14.3"
+filebeat_install_dir: "/opt/filebeat"
+filebeat_data_dir: "/opt/filebeat/data"
+filebeat_elasticsearch_host: "{{ hostvars[groups['elasticsearch'][0]].ansible_host }}"
+filebeat_elasticsearch_port: 9200
+filebeat_kibana_host: "{{ hostvars[groups['kibana'][0]].ansible_host }}"
+filebeat_kibana_port: 5601
+filebeat_nginx_access_log: "/var/log/nginx/access.log"
+filebeat_nginx_error_log: "/var/log/nginx/error.log"
+

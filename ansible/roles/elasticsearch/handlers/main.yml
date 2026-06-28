@@ -1,0 +1,5 @@
+- name: Restart elasticsearch stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ elasticsearch_install_dir }}"
+    state: restarted
+

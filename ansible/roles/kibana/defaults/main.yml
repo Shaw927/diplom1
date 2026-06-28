@@ -1,0 +1,6 @@
+kibana_version: "8.14.3"
+kibana_install_dir: "/opt/kibana"
+kibana_http_port: 5601
+kibana_server_name: "kibana"
+elasticsearch_host_url: "http://{{ hostvars[groups['elasticsearch'][0]].ansible_host }}:9200"
+

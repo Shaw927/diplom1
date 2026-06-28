@@ -1,0 +1,5 @@
+- name: Restart filebeat stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ filebeat_install_dir }}"
+    state: restarted
+

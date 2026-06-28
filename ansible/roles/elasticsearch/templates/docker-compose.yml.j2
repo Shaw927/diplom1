@@ -1,0 +1,19 @@
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:{{ elasticsearch_version }}
+    container_name: elasticsearch
+    restart: unless-stopped
+    environment:
+      discovery.type: {{ elasticsearch_discovery_type }}
+      xpack.security.enabled: {{ elasticsearch_xpack_security_enabled }}
+      ES_JAVA_OPTS: "-Xms{{ elasticsearch_memory }} -Xmx{{ elasticsearch_memory }}"
+      ES_PATH_DATA: /usr/share/elasticsearch/data
+      ES_PATH_LOGS: /usr/share/elasticsearch/logs
+      cluster.name: {{ elasticsearch_cluster_name }}
+      node.name: {{ elasticsearch_node_name }}
+      network.host: {{ elasticsearch_network_host }}
+    ports:
+      - "{{ elasticsearch_http_port }}:9200"
+    volumes:
+      - {{ elasticsearch_data_dir }}:/usr/share/elasticsearch/data
+

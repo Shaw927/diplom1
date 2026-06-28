@@ -1,0 +1,172 @@
+---
+- name: Install and configure Prometheus NGINX Log Exporter
+  hosts: web
+  become: true
+
+  vars:
+    nginxlog_exporter_version: "1.11.0"
+    nginxlog_exporter_archive: "prometheus-nginxlog-exporter_{{ nginxlog_exporter_version }}_linux_amd64.tar.gz"
+    nginxlog_exporter_url: "https://github.com/martin-helmich/prometheus-nginxlog-exporter/releases/download/v{{ nginxlog_exporter_version }}/{{ nginxlog_exporter_archive }}"
+    nginxlog_exporter_tmp_archive: "/tmp/{{ nginxlog_exporter_archive }}"
+    nginxlog_exporter_tmp_dir: "/tmp/prometheus-nginxlog-exporter-{{ nginxlog_exporter_version }}"
+    nginxlog_exporter_bin: "/usr/local/bin/prometheus-nginxlog-exporter"
+    nginxlog_exporter_config: "/etc/prometheus-nginxlog-exporter.hcl"
+    nginxlog_exporter_service: "prometheus-nginxlog-exporter"
+
+  tasks:
+    - name: Install required packages
+      ansible.builtin.apt:
+        name:
+          - tar
+          - psmisc
+        state: present
+        update_cache: true
+
+    - name: Download nginxlog exporter archive on controller
+      ansible.builtin.get_url:
+        url: "{{ nginxlog_exporter_url }}"
+        dest: "/tmp/{{ nginxlog_exporter_archive }}"
+        mode: '0644'
+      delegate_to: localhost
+      become: false
+
+    - name: Copy nginxlog exporter archive to target
+      ansible.builtin.copy:
+        src: "/tmp/{{ nginxlog_exporter_archive }}"
+        dest: "{{ nginxlog_exporter_tmp_archive }}"
+        mode: '0644'
+
+    - name: Create temporary directory for nginxlog exporter
+      ansible.builtin.file:
+        path: "{{ nginxlog_exporter_tmp_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Extract nginxlog exporter archive
+      ansible.builtin.unarchive:
+        src: "{{ nginxlog_exporter_tmp_archive }}"
+        dest: "{{ nginxlog_exporter_tmp_dir }}"
+        remote_src: true
+
+    - name: Install nginxlog exporter binary
+      ansible.builtin.copy:
+        src: "{{ nginxlog_exporter_tmp_dir }}/prometheus-nginxlog-exporter"
+        dest: "{{ nginxlog_exporter_bin }}"
+        remote_src: true
+        owner: root
+        group: root
+        mode: '0755'
+      notify: Restart prometheus-nginxlog-exporter
+
+    - name: Install nginxlog exporter config
+      ansible.builtin.copy:
+        dest: "{{ nginxlog_exporter_config }}"
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          listen {
+            port = 4040
+            metrics_endpoint = "/metrics"
+          }
+
+          namespace "nginx" {
+            source {
+              files = ["/var/log/nginx/access.log"]
+            }
+
+            format = "$remote_addr - $remote_user [$time_local] \"$request\" $status $body_bytes_sent \"$http_referer\" \"$http_user_agent\""
+
+            labels {
+              app = "web"
+            }
+          }
+      notify: Restart prometheus-nginxlog-exporter
+
+    - name: Install systemd unit for prometheus-nginxlog-exporter
+      ansible.builtin.copy:
+        dest: "/etc/systemd/system/{{ nginxlog_exporter_service }}.service"
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          [Unit]
+          Description=Prometheus NGINX Log Exporter
+          After=network.target
+
+          [Service]
+          Type=simple
+          User=root
+          ExecStart={{ nginxlog_exporter_bin }} -config-file {{ nginxlog_exporter_config }}
+          Restart=always
+          RestartSec=5
+
+          [Install]
+          WantedBy=multi-user.target
+      notify:
+        - Reload systemd
+        - Restart prometheus-nginxlog-exporter
+
+    - name: Stop legacy nginxlog-exporter service if present
+      ansible.builtin.systemd:
+        name: nginxlog-exporter
+        state: stopped
+        enabled: false
+      failed_when: false
+
+    - name: Remove legacy nginxlog-exporter unit file if present
+      ansible.builtin.file:
+        path: /etc/systemd/system/nginxlog-exporter.service
+        state: absent
+      notify: Reload systemd
+
+    - name: Remove legacy nginxlog-exporter symlink if present
+      ansible.builtin.file:
+        path: /etc/systemd/system/multi-user.target.wants/nginxlog-exporter.service
+        state: absent
+      notify: Reload systemd
+
+    - name: Stop current prometheus-nginxlog-exporter before cleanup
+      ansible.builtin.systemd:
+        name: "{{ nginxlog_exporter_service }}"
+        state: stopped
+      failed_when: false
+
+    - name: Free port 4040 from any leftover process
+      ansible.builtin.shell: |
+        fuser -k 4040/tcp || true
+      args:
+        executable: /bin/bash
+      changed_when: false
+
+    - name: Reload systemd after unit changes
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Ensure prometheus-nginxlog-exporter is enabled and started
+      ansible.builtin.systemd:
+        name: "{{ nginxlog_exporter_service }}"
+        enabled: true
+        state: started
+        daemon_reload: true
+
+    - name: Clean temporary archive from target
+      ansible.builtin.file:
+        path: "{{ nginxlog_exporter_tmp_archive }}"
+        state: absent
+
+    - name: Clean temporary extracted directory
+      ansible.builtin.file:
+        path: "{{ nginxlog_exporter_tmp_dir }}"
+        state: absent
+
+  handlers:
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Restart prometheus-nginxlog-exporter
+      ansible.builtin.systemd:
+        name: "{{ nginxlog_exporter_service }}"
+        state: restarted
+        daemon_reload: true

@@ -1,0 +1,12 @@
+elasticsearch_version: "8.14.3"
+elasticsearch_install_dir: "/opt/elasticsearch"
+elasticsearch_data_dir: "/opt/elasticsearch/data"
+elasticsearch_logs_dir: "/opt/elasticsearch/logs"
+elasticsearch_http_port: 9200
+elasticsearch_memory: "2g"
+elasticsearch_cluster_name: "diplom-elk"
+elasticsearch_node_name: "es01"
+elasticsearch_network_host: "0.0.0.0"
+elasticsearch_xpack_security_enabled: "false"
+elasticsearch_discovery_type: "single-node"
+

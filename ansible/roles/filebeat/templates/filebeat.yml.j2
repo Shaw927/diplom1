@@ -1,0 +1,26 @@
+filebeat.inputs:
+  - type: filestream
+    id: nginx-access
+    enabled: true
+    paths:
+      - {{ filebeat_nginx_access_log }}
+
+  - type: filestream
+    id: nginx-error
+    enabled: true
+    paths:
+      - {{ filebeat_nginx_error_log }}
+
+output.elasticsearch:
+  hosts: ["{{ filebeat_elasticsearch_host }}:{{ filebeat_elasticsearch_port }}"]
+
+setup.kibana:
+  host: "{{ filebeat_kibana_host }}:{{ filebeat_kibana_port }}"
+
+logging.to_files: true
+logging.files:
+  path: /usr/share/filebeat/logs
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644
+

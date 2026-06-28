@@ -1,0 +1,11 @@
+services:
+  kibana:
+    image: docker.elastic.co/kibana/kibana:{{ kibana_version }}
+    container_name: kibana
+    restart: unless-stopped
+    environment:
+      SERVER_NAME: {{ kibana_server_name }}
+      ELASTICSEARCH_HOSTS: {{ elasticsearch_host_url }}
+    ports:
+      - "{{ kibana_http_port }}:5601"
+

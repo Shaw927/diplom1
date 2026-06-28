@@ -77,6 +77,9 @@ terraform output
 
 ## Требования
 •	Terraform >= 1.5
+
 •	Ansible >= 2.14
+
 •	Yandex Cloud CLI ( yc ) настроен и авторизован
+
 •	SSH-ключ в яндексе настроен

@@ -1,0 +1,35 @@
+---
+- name: Get node_exporter targets from Terraform output (JSON)
+  ansible.builtin.command:
+    cmd: terraform output -json node_exporter_targets
+    chdir: "{{ terraform_dir }}"
+  register: tf_node_targets_raw
+  changed_when: false
+
+- name: Get web private IPs from Terraform output (JSON)
+  ansible.builtin.command:
+    cmd: terraform output -json web_private_ips
+    chdir: "{{ terraform_dir }}"
+  register: tf_web_ips_raw
+  changed_when: false
+
+- name: Build final scrape configs for Prometheus
+  ansible.builtin.set_fact:
+    prometheus_scrape_configs_final:
+      - job_name: "node_exporter"
+        static_configs:
+          - targets: "{{ tf_node_targets_raw.stdout | from_json }}"
+      - job_name: "nginx_logs"
+        static_configs:
+          - targets: >-
+              {{
+                (tf_web_ips_raw.stdout | from_json | dict2items
+                 | map(attribute='value')
+                 | map('regex_replace', '$', ':4040')
+                 | list)
+              }}
+
+- name: Debug final scrape configs
+  ansible.builtin.debug:
+    var: prometheus_scrape_configs_final
+

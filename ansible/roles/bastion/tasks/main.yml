@@ -1,0 +1,10 @@
+---
+- name: Install htop, vim, fail2ban, git
+  ansible.builtin.apt:
+    name:
+      - htop
+      - vim
+      - fail2ban
+      - git
+    state: present
+    update_cache: true

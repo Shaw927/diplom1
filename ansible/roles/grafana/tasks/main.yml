@@ -1,0 +1,109 @@
+---
+- name: Build Prometheus URL from inventory
+  ansible.builtin.set_fact:
+    prometheus_url: "http://{{ hostvars['prometheus_host']['ansible_host'] }}:9090"
+
+- name: Install dependencies
+  ansible.builtin.apt:
+    name:
+      - adduser
+      - libfontconfig1
+      - musl
+    state: present
+    update_cache: true
+
+- name: Download Grafana .deb on controller
+  ansible.builtin.get_url:
+    url: "{{ grafana_url }}"
+    dest: "/tmp/{{ grafana_deb }}"
+    mode: '0644'
+  delegate_to: localhost
+  become: false
+
+- name: Copy .deb to target host
+  ansible.builtin.copy:
+    src: "/tmp/{{ grafana_deb }}"
+    dest: "{{ grafana_tmp }}"
+    mode: '0644'
+
+- name: Install Grafana from .deb
+  ansible.builtin.apt:
+    deb: "{{ grafana_tmp }}"
+    state: present
+
+- name: Clean up .deb on target
+  ansible.builtin.file:
+    path: "{{ grafana_tmp }}"
+    state: absent
+
+- name: Enable and start Grafana service
+  ansible.builtin.systemd:
+    name: grafana-server
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Wait for Grafana to be ready
+  ansible.builtin.wait_for:
+    host: "127.0.0.1"
+    port: 3000
+    delay: 5
+    timeout: 60
+
+- name: Create dashboards directory
+  ansible.builtin.file:
+    path: /var/lib/grafana/dashboards
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: '0755'
+
+- name: Copy nginx logs dashboard JSON
+  ansible.builtin.copy:
+    src: nginx_logs_dashboard.json
+    dest: /var/lib/grafana/dashboards/nginx_logs_dashboard.json
+    owner: grafana
+    group: grafana
+    mode: '0644'
+
+- name: Copy node exporter dashboard JSON
+  ansible.builtin.copy:
+    src: node_exporter_dashboard.json
+    dest: /var/lib/grafana/dashboards/node_exporter_dashboard.json
+    owner: grafana
+    group: grafana
+    mode: '0644'
+
+- name: Configure dashboards provisioning
+  ansible.builtin.copy:
+    dest: /etc/grafana/provisioning/dashboards/ansible.yaml
+    mode: '0644'
+    content: |
+      apiVersion: 1
+      providers:
+        - name: 'ansible-dashboards'
+          type: file
+          updateIntervalSeconds: 10
+          options:
+            path: /var/lib/grafana/dashboards
+
+- name: Configure Prometheus datasource provisioning
+  ansible.builtin.copy:
+    dest: /etc/grafana/provisioning/datasources/prometheus.yaml
+    mode: '0644'
+    content: |
+      apiVersion: 1
+
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          access: proxy
+          url: {{ prometheus_url }}
+          isDefault: true
+          editable: false
+
+- name: Restart Grafana to load dashboards
+  ansible.builtin.systemd:
+    name: grafana-server
+    state: restarted
+

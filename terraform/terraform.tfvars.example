@@ -1,0 +1,8 @@
+yandex_token = "тут id yandex OEM"
+cloud_id     = "тут id облака"
+folder_id    = "тут id папки"
+
+default_zone = "ru-central1-a" # зона доступности по дефолту которая будет ставится
+vpc_name     = "diplom-vpc" # название вм
+vm_count     = 2 # кол-во вм
+ssh_public_key = "ssh-ed25519 AAAAC3NzaC........."

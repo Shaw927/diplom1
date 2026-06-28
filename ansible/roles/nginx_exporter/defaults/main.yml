@@ -1,0 +1,10 @@
+---
+nginxlog_exporter_version: "1.11.0"
+nginxlog_exporter_archive: "prometheus-nginxlog-exporter_{{ nginxlog_exporter_version }}_linux_amd64.tar.gz"
+nginxlog_exporter_url: "https://github.com/martin-helmich/prometheus-nginxlog-exporter/releases/download/v{{ nginxlog_exporter_version }}/{{ nginxlog_exporter_archive }}"
+nginxlog_exporter_tmp_archive: "/tmp/{{ nginxlog_exporter_archive }}"
+nginxlog_exporter_tmp_dir: "/tmp/prometheus-nginxlog-exporter-{{ nginxlog_exporter_version }}"
+nginxlog_exporter_bin: "/usr/local/bin/prometheus-nginxlog-exporter"
+nginxlog_exporter_config: "/etc/prometheus-nginxlog-exporter.hcl"
+nginxlog_exporter_service: "prometheus-nginxlog-exporter"
+

@@ -3,29 +3,5 @@
   hosts: web
   become: true
 
-  tasks:
-    - name: Install Nginx
-      ansible.builtin.apt:
-        name: nginx
-        state: present
-        update_cache: true
-
-    - name: Enable and start Nginx
-      ansible.builtin.systemd:
-        name: nginx
-        enabled: true
-        state: started
-
-    - name: Deploy simple index.html
-      ansible.builtin.copy:
-        dest: /var/www/html/index.html
-        content: |
-          <html>
-          <head><title>Diplom site</title></head>
-          <body>
-          <h1>Diplom web server {{ inventory_hostname }}</h1>
-          </body>
-          </html>
-        owner: www-data
-        group: www-data
-        mode: '0644'
+  roles:
+    - web

@@ -1,0 +1,19 @@
+---
+# Полный деплой инфраструктуры
+# Запуск: ansible-playbook playbooks/deploy-all.yml
+
+- import_playbook: bastion.yml        # bastion точка входа и проброса портов
+
+- import_playbook: web.yml            # nginx на веб серверах
+
+- import_playbook: node_exporter.yml  # Node exporter на веб серверах
+- import_playbook: nginx_exporter.yml # Nginx exporter на веб серверах
+
+- import_playbook: elasticsearch.yml  # elasticsearch до filebeat и kibana
+
+- import_playbook: filebeat.yml       # Filebeat отправляет логи в ES
+- import_playbook: kibana.yml         # Kibana читает из ES
+
+- import_playbook: prometheus.yml     #  Prometheus скрейпит экспортеры
+- import_playbook: grafana.yml        #  Grafana читает из Prometheus
+

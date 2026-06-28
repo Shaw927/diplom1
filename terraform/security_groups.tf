@@ -104,12 +104,13 @@ resource "yandex_vpc_security_group" "prometheus" {
   network_id = yandex_vpc_network.main.id
   folder_id  = var.folder_id
 
-  ingress {
-    protocol       = "TCP"
-    description    = "Prometheus ui temp from all"
-    v4_cidr_blocks = ["0.0.0.0/0"]
-    port           = 9090
-  }
+### for check targets ###
+#  ingress {
+#    protocol       = "TCP"
+#    description    = "Prometheus ui"
+#    v4_cidr_blocks = ["0.0.0.0/0"]
+#    port           = 9090
+#  }
 
   ingress {
     protocol       = "TCP"
@@ -138,11 +139,19 @@ resource "yandex_vpc_security_group" "grafana" {
   folder_id  = var.folder_id
   network_id = yandex_vpc_network.main.id
 
+#  ingress {
+#    description    = "Grafana UI from all"
+#    protocol       = "TCP"
+#    v4_cidr_blocks = ["0.0.0.0/0"]
+#    port           = 3000
+#  }
+
+### задумка что нужно пробросить порт 3000 через бастион и вебка будет доступна, либо блок выше раскоментить ### 
   ingress {
-    description    = "Grafana UI from my IP"
-    protocol       = "TCP"
-    v4_cidr_blocks = ["0.0.0.0/0"]
-    port           = 3000
+    description       = "Grafana UI only from bastion"
+    protocol          = "TCP"
+    security_group_id = yandex_vpc_security_group.bastion.id
+    port              = 3000
   }
 
   ingress {
@@ -201,11 +210,19 @@ resource "yandex_vpc_security_group" "kibana" {
   folder_id  = var.folder_id
   network_id = yandex_vpc_network.main.id
 
+ # ingress {
+ #   description    = "Kibana UI from all"
+ #   protocol       = "TCP"
+ #   v4_cidr_blocks = ["0.0.0.0/0"]
+ #   port           = 5601
+ # }
+
+### То же самое что и у графаны ###
   ingress {
-    description    = "Kibana UI from all"
-    protocol       = "TCP"
-    v4_cidr_blocks = ["0.0.0.0/0"]
-    port           = 5601
+    description       = "Kibana UI from bastion"
+    protocol          = "TCP"
+    security_group_id = yandex_vpc_security_group.bastion.id
+    port              = 5601
   }
 
   ingress {

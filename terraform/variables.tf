@@ -62,3 +62,9 @@ variable "public_subnets" {
     { name = "public-a", zone = "ru-central1-a", cidr = "10.0.10.0/24" }
   ]
 }
+
+variable "ssh_public_key" {
+  description = "Публичный SSH-ключ для доступа к ВМ"
+  type        = string
+  sensitive   = true
+}

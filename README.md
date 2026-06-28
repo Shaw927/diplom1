@@ -44,12 +44,15 @@
 ```bash
 cd terraform
 
+cp terraform.tfvars.example terraform.tfvars
+
 export TF_VAR_ssh_public_key=$(cat ~/.ssh/id_rsa.pub)
 
 terraform init
 terraform plan
 terraform apply
 ```
+
 ### 2. Ansible
 
 Тут достачно одного плейбука для запуска всех плейбуков в правильном порядке
